@@ -1,97 +1,57 @@
 import './App.css';
 import Header from "./MyComponents/Header";
 import Footer from "./MyComponents/Footer";
+import About from "./MyComponents/About";
 
 import Todos from "./MyComponents/Todos";
-import React, { useState } from 'react';
-
+import React, { useState , useEffect} from 'react';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from "react-router-dom";
 
 function App() {
-  const onDelete = (todo) => {
-console.log("deleting item",todo);
-// let index = todos.indexOf(todo);
-// todos.splice(index,1);
-setTodos(todos.filter((e)=>{
-  return e!==todo;
-}));
+  let initTodos;
+  if(localStorage.getItem('todos')===null){
+    initTodos = [];
+  }else{
+    initTodos = JSON.parse(localStorage.getItem('todos'));
   }
-  const [todos,setTodos] = useState([
-    {
-      sno: 1,
-      title: "My Title 1",
-      desc: "My description here. 1",
-      priority: 'success'
+
+  const [todos, setTodos] = useState(initTodos);
+  useEffect(() => {
+    localStorage.setItem('todos',JSON.stringify(todos));
+  }, [todos])
   
-    },
-    {
-      sno: 2,
-      title: "My Title 2",
-      desc: "My description here. 2",
-      priority: 'primary'
-  
-    },
-    {
-      sno: 3,
-      title: "My Title 3",
-      desc: "My description here. 3",
-      priority: 'warning'
-  
-    },
-    {
-      sno: 4,
-      title: "My Title 4",
-      desc: "My description here. 4",
-      priority: 'danger'
-  
-    },
-    {
-      sno: 5,
-      title: "My Title 5",
-      desc: "My description here. 5",
-      priority: 'dark'
-  
-    },
-    {
-      sno: 6,
-      title: "My Title 6",
-      desc: "My description here. 6",
-      priority: 'danger'
-  
-    },
-    {
-      sno: 7,
-      title: "My Title 7",
-      desc: "My description here. 7",
-      priority: 'warning'
-  
-    },
-    ]);
+  function addTodo(new_todo){
+    let sno = todos.length>0 ? todos[todos.length-1].sno+1 : 1;
+    new_todo.sno = sno;
+    setTodos([...todos,new_todo]);
+  };
+  const onDelete = (todo) => {
+    setTodos(todos.filter((e) => {
+      return e !== todo;
+    }));
+  };
   return (
-    // <div classNameName="App">
-    //   <header classNameName="App-header">
-    //     <img src={logo} classNameName="App-logo" alt="logo" />
-    //     <p>
-    //       Edit <code>src/App.js</code> and save to reload.
-    //     </p>
-    //     <a
-    //       classNameName="App-link"
-    //       href="https://reactjs.org"
-    //       target="_blank"
-    //       rel="noopener noreferrer"
-    //     >
-    //       Learn React
-    //     </a>
-    //   </header>
-    // </div>
-<>
-<Header title="My Todos"/>
-    <div className='container'>
-    <Todos todos={todos} onDelete={onDelete} />
-    
-    <Footer />
+
+    <>
+    <Router>
+      <Header title="My Todos" />
+      <div className='container'>
+        <Routes>
+          <Route exact path="/" element={<Todos todos={todos} addTodo={addTodo} onDelete={onDelete} />} />
+          
+          <Route exact path="/about" element={<About />} />
+          
+        </Routes>
+        <Footer />
 
 
-    </div></>
+      </div>
+      </Router>
+      </>
   );
 }
 
